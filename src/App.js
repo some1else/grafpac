@@ -226,7 +226,7 @@ class App extends PureComponent {
             {vertices.map(({ id }) => (
               <ForceGraphNode
                 node={{ id }}
-                fill={"cyan"}
+                fill={primes.indexOf(id) === -1 ? "lightgray" : "cyan"}
                 key={`vertex-${id}`}
                 showLabel
               />
