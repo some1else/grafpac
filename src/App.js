@@ -4,7 +4,8 @@ import { primes } from "./util"
 
 import "./App.css"
 
-const VERTEX_COUNT = 85 // 61
+// 85 is nice to pack, but make it random
+const VERTEX_COUNT = primes[Math.floor(Math.random() * (primes.length / 2))]
 
 const data = {
   vertices: [{ id: 1 }, { id: 2 }, { id: 3 }],
