@@ -5,7 +5,7 @@ import { primes } from "./util"
 import "./App.css"
 
 // 85 is nice to pack, but make it random
-const VERTEX_COUNT = primes[Math.floor(Math.random() * (primes.length / 2))]
+const VERTEX_COUNT = primes[Math.floor(Math.random() * (primes.length / 4))]
 
 const data = {
   vertices: [{ id: 1 }, { id: 2 }, { id: 3 }],
@@ -215,7 +215,7 @@ class App extends PureComponent {
             simulationOptions={{
               animate,
               labelAttr: "id",
-              alphaDecay: 0.001,
+              alphaDecay: 0.0001,
               velocityDecay: 0.5,
               strength: {
                 charge: -10000 / VERTEX_COUNT,
