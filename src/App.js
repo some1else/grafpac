@@ -75,7 +75,7 @@ class App extends PureComponent {
   addNewVertex = () => {
     const { edges, vertices } = this.state
 
-    if (vertices.length === VERTEX_COUNT) {
+    if (vertices.length >= VERTEX_COUNT) {
       clearInterval(this.interval)
       this.setState({ animate: true })
       // debugger
