@@ -3,15 +3,13 @@ import { ForceGraph, ForceGraphNode, ForceGraphLink } from "react-vis-force"
 // import { primes } from "./util"
 import Color from "color"
 
-import {
-  data as seedData,
-  logGraph,
-  grow,
-  findLooseEdges,
-  VERTEX_COUNT,
-} from "./Graph"
+import seedData from "./seedData.json"
+
+import { logGraph, grow, findLooseEdges } from "./Graph"
 
 import "./App.css"
+
+const VERTEX_COUNT = 420 / 8
 
 function hexColorFor(id) {
   const color = Color(`hsl(${id % 360}, 100%, 50%)`)
@@ -30,11 +28,13 @@ class App extends PureComponent {
       logGraph({ edges, vertices })
     }
 
-    let newState = grow({ edges, vertices })
+    // debugger
+
+    let newState = grow({ edges, vertices }, { test: true })
 
     // console.log("loose ends:", findLooseEdges(newState).length)
 
-    this.setState(newState)
+    this.setState(newState.graph)
   }
 
   componentDidMount() {

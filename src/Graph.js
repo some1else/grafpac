@@ -1,33 +1,31 @@
-export const VERTEX_COUNT = 420 / 8
+const MAX_EDGES = 6
 
-export const MAX_EDGES = 6
-
-export const data = {
-  vertices: [
-    { id: 1, edges: [1, 2] },
-    { id: 2, edges: [1, 3] },
-    { id: 3, edges: [2, 3] },
-  ],
-  edges: [
-    { id: 1, source: 1, target: 2, weight: 3 },
-    { id: 2, source: 3, target: 1, weight: 4 },
-    { id: 3, source: 2, target: 3, weight: 5 },
-  ],
-}
+const SEED_DATA = require("./seedData.json")
 
 const ids = {
-  edges: 4,
-  vertices: 4,
+  edges: SEED_DATA.edges.reduce(
+    (maxId, edge) => (edge.id > maxId ? edge.id : maxId),
+    0
+  ),
+  vertices: SEED_DATA.vertices.reduce(
+    (maxId, vert) => (vert.id > maxId ? vert.id : maxId),
+    0
+  ),
 }
 
 export function getNewId(scope) {
   return (ids[scope] += 1)
 }
 
-export function grow(graph) {
-  graph = addNewVertex(graph, { meta: Math.random() })
-  graph = sanitizeGraph(graph)
-  return graph
+export function grow(graph, data = {}) {
+  const { graph: grownGraph, newEdges: grownEdges } = addNewVertex(graph, data)
+  const { graph: sanitizedGraph, newEdges: sanitizedEdges } = sanitizeGraph(
+    grownGraph
+  )
+  return {
+    graph: sanitizedGraph,
+    newEdges: [...grownEdges, ...sanitizedEdges],
+  }
 }
 
 export function logGraph(graph) {
@@ -72,14 +70,35 @@ export function createEdge({ source, target, id: newId }) {
 }
 
 export function addNewVertex({ edges, vertices }, data = {}) {
-  if (vertices.length === 3) {
+  const dataVerticesCount = vertices.filter(v => v.data).length
+  if (vertices.length === 3 && dataVerticesCount < 3) {
     const vert = vertices.find(vert => !vert.data)
-    if (vert) {
-      vert.data = data
-      const remainVertices = vertices.filter(v => v != vert)
+    vert.data = { ...data }
+    const remainVertices = vertices.filter(v => v != vert)
+
+    if (dataVerticesCount + 1 === 1) {
       return {
-        vertices: [...remainVertices, vert],
-        edges: [...edges],
+        graph: {
+          edges: [...edges],
+          vertices: [...remainVertices, vert],
+        },
+        newEdges: [],
+      }
+    } else if (dataVerticesCount + 1 === 2) {
+      return {
+        graph: {
+          edges: [...edges],
+          vertices: [...remainVertices, vert],
+        },
+        newEdges: [findById(edges, 1)],
+      }
+    } else if (dataVerticesCount + 1 === 3) {
+      return {
+        graph: {
+          edges: [...edges],
+          vertices: [...remainVertices, vert],
+        },
+        newEdges: [findById(edges, 2), findById(edges, 3)],
       }
     }
   }
@@ -114,15 +133,21 @@ export function addNewVertex({ edges, vertices }, data = {}) {
   edge.closed = true
 
   return {
-    vertices: [...remainVertices, vertA, vertB, newVertex],
-    edges: [...remainEdges, edge, newEdgeA, newEdgeB],
+    graph: {
+      edges: [...remainEdges, edge, newEdgeA, newEdgeB],
+      vertices: [...remainVertices, vertA, vertB, newVertex],
+    },
+    newEdges: [newEdgeA, newEdgeB],
   }
 }
 
 export function sanitizeGraph(graph) {
-  if (graph.vertices.length < 4) return graph
+  debugger
+
+  // if (graph.vertices.length < 4) return { graph: { ...graph }, newEdges: [] }
 
   const looseEdges = []
+  let newEdges = []
   let done = false
 
   while (!done) {
@@ -130,15 +155,29 @@ export function sanitizeGraph(graph) {
     const sourceVert = findById(graph.vertices, edge.source)
     const targetVert = findById(graph.vertices, edge.target)
     if (sourceVert.edges.length === MAX_EDGES) {
-      graph = closeLastEdgeWithSource(graph, edge, sourceVert, targetVert)
+      const { graph: closedSourceGraph, newEdge } = closeLastEdgeWithSource(
+        graph,
+        edge,
+        sourceVert,
+        targetVert
+      )
+      graph = closedSourceGraph
+      newEdges = [...newEdges, newEdge]
     } else if (targetVert.edges.length === MAX_EDGES) {
-      graph = closeLastEdgeWithTarget(graph, edge, targetVert, sourceVert)
+      const { graph: closedTargetGraph, newEdge } = closeLastEdgeWithTarget(
+        graph,
+        edge,
+        targetVert,
+        sourceVert
+      )
+      graph = closedTargetGraph
+      newEdges = [...newEdges, newEdge]
     } else {
       done = true
     }
   }
 
-  return graph
+  return { graph: { ...graph }, newEdges }
 }
 
 export function closeLastEdgeWithTarget(
@@ -177,8 +216,11 @@ export function closeLastEdgeWithTarget(
   )
 
   return {
-    edges: [...remainEdges, edge, targetEdge, newEdge],
-    vertices: [...remainVertices, sourceVert, siblingVert],
+    graph: {
+      edges: [...remainEdges, edge, targetEdge, newEdge],
+      vertices: [...remainVertices, sourceVert, siblingVert],
+    },
+    newEdge,
   }
 }
 
@@ -210,6 +252,7 @@ export function closeLastEdgeWithSource(
     source: siblingVert.id,
     target: targetVert.id,
   })
+
   siblingVert.edges = [...siblingVert.edges, newEdge.id]
   targetVert.edges = [...targetVert.edges, newEdge.id]
 
@@ -219,13 +262,48 @@ export function closeLastEdgeWithSource(
   )
 
   return {
-    edges: [...remainEdges, edge, sourceEdge, newEdge],
-    vertices: [...remainVertices, targetVert, siblingVert],
+    graph: {
+      edges: [...remainEdges, edge, sourceEdge, newEdge],
+      vertices: [...remainVertices, targetVert, siblingVert],
+    },
+    newEdge,
   }
 }
 
 export function findById(collection, targetId) {
   return collection.find(({ id }) => id === targetId)
+}
+
+export function updateEdge({ edges, vertices }, id, mut) {
+  const edge = edges.find(e => e.id === parseInt(id))
+  if (edge && mut) {
+    const remainEdges = edges.filter(e => e !== edge)
+    return {
+      edges: [...remainEdges, mut(edge)],
+      vertices,
+    }
+  } else {
+    return { edges, vertices }
+  }
+}
+
+export function removeEdges({ edges, vertices }, cond) {
+  const removeEdges = edges.filter(cond)
+  const remainEdges = edges.filter(e => !cond(e))
+  const cleanedVertices = vertices.map(vert => {
+    const remainVertEdges = vert.edges.filter(id =>
+      remainEdges.find(e => e.id === id)
+    )
+    return {
+      ...vert,
+      edges: remainVertEdges,
+    }
+  })
+
+  return {
+    edges: remainEdges,
+    vertices: cleanedVertices,
+  }
 }
 
 export function findLooseEdges({ edges, vertices }) {
@@ -251,21 +329,20 @@ export function findLooseEdges({ edges, vertices }) {
   return looseEdges
 }
 
-// export function reduceToWeakestEdge(edges) {
-//   return edges.reduce(
-//     (weakest, edge) => {
-//       const min = weakest.source + weakest.target
-//       const sum = edge.source + edge.target
-//       if (
-//         sum < min ||
-//         (sum === min &&
-//           Math.min(edge.source, edge.target) <
-//             Math.min(weakest.source, weakest.target))
-//       ) {
-//         weakest = edge
-//       }
-//       return weakest
-//     },
-//     { source: Number.POSITIVE_INFINITY, target: Number.POSITIVE_INFINITY }
-//   )
+// module.exports = {
+//   SEED_DATA,
+//   getNewId,
+//   grow,
+//   logGraph,
+//   findWeakestEdge,
+//   createVertex,
+//   createEdge,
+//   addNewVertex,
+//   sanitizeGraph,
+//   closeLastEdgeWithTarget,
+//   closeLastEdgeWithSource,
+//   findById,
+//   findLooseEdges,
+//   updateEdge,
+//   removeEdges
 // }
