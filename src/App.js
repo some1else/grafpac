@@ -9,7 +9,7 @@ import { logGraph, grow, findLooseEdges } from "./Graph"
 
 import "./App.css"
 
-const VERTEX_COUNT = 420 / 8
+const VERTEX_COUNT = 420 / (2 + Math.random() * 2)
 
 function hexColorFor(id) {
   const color = Color(`hsl(${id % 360}, 100%, 50%)`)
@@ -72,7 +72,7 @@ class App extends PureComponent {
               animate,
               labelAttr: "id",
               // alphaDecay: 0.0001,
-              alphaDecay: 0.01,
+              alphaDecay: 0.001,
               // velocityDecay: 0.5,
               strength: {
                 charge: -10000 / VERTEX_COUNT,
