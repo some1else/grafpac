@@ -1,5 +1,5 @@
 # grafpac
 
-A network that takes two connections to join
+A network structure where joining a new node always costs two vertices.
 
-[https://grafpac.netlify.com](https://grafpac.netlify.com)
+[https://grafpac.netlify.app](https://grafpac.netlify.app)
