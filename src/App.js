@@ -27,7 +27,7 @@ class App extends PureComponent {
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 1)
+        this.interval = setInterval(this.growGraph, 20)
       }, 6000)
     }
 
@@ -35,7 +35,7 @@ class App extends PureComponent {
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 1)
+        this.interval = setInterval(this.growGraph, 20)
       }, 10000)
     }
 
@@ -43,11 +43,11 @@ class App extends PureComponent {
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 1)
+        this.interval = setInterval(this.growGraph, 10)
       }, 15000)
     }
 
-    if (vertices.length === Math.floor(VERTEX_COUNT / 1.25)) {
+    if (vertices.length === Math.floor(VERTEX_COUNT / 1.5)) {
       clearInterval(this.interval)
 
       setTimeout(() => {
@@ -72,7 +72,7 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { vertices, edges } = this.state
-    this.interval = setInterval(this.growGraph, 0)
+    this.interval = setInterval(this.growGraph, 20)
   }
 
   render() {
@@ -94,11 +94,14 @@ class App extends PureComponent {
               left: "50%",
               transform: "translate(-50%, -50%)",
               textAlign: "center",
+              fontWeight: "normal",
+              color: "#444",
+              lineHeight: "180%",
             }}
           >
-            Building graph
-            <br />
             <small>
+              Building graph...
+              <br />
               {vertices.length} vertices, {edges.length} edges
               <br />
               {Math.ceil((vertices.length / VERTEX_COUNT) * 100)}% complete
