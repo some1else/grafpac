@@ -17,14 +17,13 @@ function hexColorFor(id) {
 }
 
 class App extends PureComponent {
-  state = { ...seedData, animate: false }
+  state = { ...seedData, animate: true }
 
   growGraph = () => {
     const { edges, vertices } = this.state
 
     if (vertices.length >= VERTEX_COUNT) {
       clearInterval(this.interval)
-      this.setState({ animate: true })
       logGraph({ edges, vertices })
     }
 
