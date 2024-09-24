@@ -9,7 +9,7 @@ import { logGraph, grow, findLooseEdges } from "./Graph"
 
 import "./App.css"
 
-const VERTEX_COUNT = 1024 / 4
+const VERTEX_COUNT = Math.floor(1024 / 3)
 
 function hexColorFor(id) {
   const color = Color(`hsl(${id % 360}, 100%, 50%)`)
@@ -22,12 +22,12 @@ class App extends PureComponent {
   growGraph = () => {
     const { edges, vertices } = this.state
 
-    if (vertices.length === VERTEX_COUNT / 4) {
+    if (vertices.length === Math.floor(VERTEX_COUNT / 4)) {
       this.setState({ ...this.state, animate: true })
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 30)
+        this.interval = setInterval(this.growGraph, 1)
       }, 6000)
     }
 
@@ -35,19 +35,19 @@ class App extends PureComponent {
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 30)
-      }, 7000)
+        this.interval = setInterval(this.growGraph, 1)
+      }, 10000)
     }
 
-    if (vertices.length === VERTEX_COUNT / 2) {
+    if (vertices.length === Math.floor(VERTEX_COUNT / 2)) {
       clearInterval(this.interval)
 
       setTimeout(() => {
-        this.interval = setInterval(this.growGraph, 30)
-      }, 8000)
+        this.interval = setInterval(this.growGraph, 1)
+      }, 15000)
     }
 
-    if (vertices.length === Math.floor(VERTEX_COUNT / 1.1)) {
+    if (vertices.length === Math.floor(VERTEX_COUNT / 1.25)) {
       clearInterval(this.interval)
 
       setTimeout(() => {
@@ -80,6 +80,12 @@ class App extends PureComponent {
 
     return (
       <div className="App">
+        <div className="description">
+          Mesh building logic:
+          <br />
+          - It costs two connections to add new nodes.
+          <br />- New nodes are added on the outer perimeter of the mesh.
+        </div>
         {!animate && (
           <h1
             style={{
@@ -105,8 +111,8 @@ class App extends PureComponent {
               animate,
               labelAttr: "id",
               // alphaDecay: 0.0001,
-              alphaDecay: 0.00001,
-              velocityDecay: 0.375,
+              alphaDecay: 0.000001,
+              velocityDecay: 0.35,
               strength: {
                 charge: (1 / this.state.vertices.length) * -10000,
               },
@@ -123,6 +129,7 @@ class App extends PureComponent {
                 showLabel
                 // cx={Math.random() * window.innerWidth}
                 // cy={Math.random() * window.innerHeight}
+                r={3.5}
               />
             ))}
             {edges.map(({ source, target }) => (

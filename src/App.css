@@ -2,3 +2,41 @@ body {
   margin: 0;
   padding: 0;
 }
+
+body {
+  background: #111;
+  color: white;
+}
+
+#root {
+  /* filter: invert(); */
+}
+
+circle {
+  stroke: black;
+}
+
+line {
+  stroke: #222;
+  stroke-width: 2px;
+}
+
+text {
+  user-select: none;
+  fill: #555;
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: 0px 1px black;
+  -webkit-text-stroke: 1px black;
+  transform: translate(8px, 4px);
+}
+
+div.description {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 4rem 8rem;
+  font-size: 1rem;
+  line-height: 1.75rem;
+  color: #666;
+}
