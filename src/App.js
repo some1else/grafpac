@@ -38,7 +38,7 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { vertices, edges } = this.state
-    this.interval = setInterval(this.growGraph, 1000 / 30)
+    this.interval = setInterval(this.growGraph, 1000 / 3)
   }
 
   render() {
