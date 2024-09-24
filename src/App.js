@@ -9,7 +9,7 @@ import { logGraph, grow, findLooseEdges } from "./Graph"
 
 import "./App.css"
 
-const VERTEX_COUNT = 420 / 8
+const VERTEX_COUNT = 4096 / 8
 
 function hexColorFor(id) {
   const color = Color(`hsl(${id % 360}, 100%, 50%)`)
@@ -39,7 +39,7 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { vertices, edges } = this.state
-    this.interval = setInterval(this.growGraph, 0)
+    this.interval = setInterval(this.growGraph, 1000 / 30)
   }
 
   render() {
