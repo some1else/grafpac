@@ -73,9 +73,9 @@ class App extends PureComponent {
               // alphaDecay: 0.0001,
               alphaDecay: 0.01,
               // velocityDecay: 0.5,
-              strength: {
-                charge: -10000 / VERTEX_COUNT,
-              },
+              // strength: {
+               // charge: -10000 / VERTEX_COUNT,
+              // },
               width: window.innerWidth,
               height: window.innerHeight,
             }}
@@ -87,6 +87,8 @@ class App extends PureComponent {
                 fill={hexColorFor(id)}
                 key={`vertex-${id}`}
                 showLabel
+                cx={Math.random() * window.innerWidth}
+                cy={Math.random() * window.innerHeight}
               />
             ))}
             {edges.map(({ source, target }) => (
