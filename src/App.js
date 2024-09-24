@@ -9,7 +9,7 @@ import { logGraph, grow, findLooseEdges } from "./Graph"
 
 import "./App.css"
 
-const VERTEX_COUNT = 4096 / 8
+const VERTEX_COUNT = 1024 / 4
 
 function hexColorFor(id) {
   const color = Color(`hsl(${id % 360}, 100%, 50%)`)
@@ -17,13 +17,47 @@ function hexColorFor(id) {
 }
 
 class App extends PureComponent {
-  state = { ...seedData, animate: true }
+  state = { ...seedData, animate: false }
 
   growGraph = () => {
     const { edges, vertices } = this.state
 
-    if (vertices.length >= VERTEX_COUNT) {
+    if (vertices.length === VERTEX_COUNT / 4) {
+      this.setState({ ...this.state, animate: true })
       clearInterval(this.interval)
+
+      setTimeout(() => {
+        this.interval = setInterval(this.growGraph, 30)
+      }, 6000)
+    }
+
+    if (vertices.length === Math.floor(VERTEX_COUNT / 3)) {
+      clearInterval(this.interval)
+
+      setTimeout(() => {
+        this.interval = setInterval(this.growGraph, 30)
+      }, 7000)
+    }
+
+    if (vertices.length === VERTEX_COUNT / 2) {
+      clearInterval(this.interval)
+
+      setTimeout(() => {
+        this.interval = setInterval(this.growGraph, 30)
+      }, 8000)
+    }
+
+    if (vertices.length === Math.floor(VERTEX_COUNT / 1.1)) {
+      clearInterval(this.interval)
+
+      setTimeout(() => {
+        this.interval = setInterval(this.growGraph, 8)
+      }, 38000)
+    }
+
+    if (vertices.length >= VERTEX_COUNT) {
+      clearTimeout(this.interval)
+
       logGraph({ edges, vertices })
     }
 
@@ -38,7 +72,7 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { vertices, edges } = this.state
-    this.interval = setInterval(this.growGraph, 1000 / 3)
+    this.interval = setInterval(this.growGraph, 0)
   }
 
   render() {
@@ -71,11 +105,11 @@ class App extends PureComponent {
               animate,
               labelAttr: "id",
               // alphaDecay: 0.0001,
-              alphaDecay: 0.01,
-              // velocityDecay: 0.5,
-              // strength: {
-               // charge: -10000 / VERTEX_COUNT,
-              // },
+              alphaDecay: 0.00001,
+              velocityDecay: 0.375,
+              strength: {
+                charge: (1 / this.state.vertices.length) * -10000,
+              },
               width: window.innerWidth,
               height: window.innerHeight,
             }}
@@ -87,8 +121,8 @@ class App extends PureComponent {
                 fill={hexColorFor(id)}
                 key={`vertex-${id}`}
                 showLabel
-                cx={Math.random() * window.innerWidth}
-                cy={Math.random() * window.innerHeight}
+                // cx={Math.random() * window.innerWidth}
+                // cy={Math.random() * window.innerHeight}
               />
             ))}
             {edges.map(({ source, target }) => (
